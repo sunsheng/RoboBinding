@@ -1,0 +1,56 @@
+---
+layout: main
+title: Binding to custom views
+---
+
+<h2>Binding to custom views</h2>
+<p>RoboBinding allows you to add binding support for your own custom UI components. Simply implement the BindableView interface and type-parameterize it to the class you are implementing.</p>
+<p>Here is an example taken from the sample project available on GitHub:</p>
+
+{% highlight java %}
+public class NavigationBar extends RelativeLayout 
+                                   implements BindableView<NavigationBar>
+{
+	private Button leftButton;
+	private Button rightButton;
+	
+	public NavigationBar(Context context, AttributeSet attrs)
+	{
+		super(context, attrs);
+		...
+	}
+
+	@Override
+	public void mapBindingAttributes(
+                          CustomBindingAttributeMappings<NavigationBar> mappings)
+	{
+		mappings.mapCommandAttribute(leftButton, 
+                               OnClickAttribute.class, "leftButtonAction");
+		mappings.mapCommandAttribute(rightButton, 
+                               OnClickAttribute.class, "rightButtonAction");
+	}
+}
+{% endhighlight %}
+
+<p>The BindableView interface requires you to implement a single method, mapBindingAttributes(). On the CustomBindingAttributeMappings instance that is passed into this method you define the binding names that you want to expose to your users.</p>
+<p>In this case we are exposing two bindings, 'leftButtonAction' and 'rightButtonAction'.</p>
+<p>The CustomBindingAttributeMappings interface itself looks like this:</p>
+{% highlight java %}
+public interface CustomBindingAttributeMappings<T extends View> 
+                                                   extends BindingAttributeMappings<T>
+{
+	<S extends View> void mapPropertyAttribute(S alternateView, 
+	                                           Class<? extends PropertyViewAttribute<? extends View>> propertyViewAttributeClass, 
+                                               String attributeName);
+	
+	<S extends View> void mapCommandAttribute(S alternateView, 
+                                              Class<? extends AbstractCommandViewAttribute<? extends View>> commandViewAttributeClass, 
+                                              String attributeName);
+	
+	<S extends View> void mapGroupedAttribute(S alternateView, 
+                                              Class<? extends AbstractGroupedViewAttribute<? extends View>> groupedViewAttributeClass, 
+                                              String... attributeNames);
+}
+{% endhighlight %}
+<p>As you can see, there are three types of bindings you can expose: Properties, Commands or Grouped binding attributes.</p>
+
